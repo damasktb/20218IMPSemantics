@@ -22,7 +22,6 @@ get v ((w,m):xs) | v == w = m
 ------------------------- Sample program
 
 
-
 factorial :: Comm
 factorial = ("y" :=: Num 1) :>:
             While (Num 1 :<=: Var "x")
@@ -46,19 +45,21 @@ data Aexp = Num Integer
           | Decr Variable
           | Incr Variable
 
-evalA (Num n) s   = (s, n)
-evalA (Var v) s   = (s, s v)
-evalA (Decr v) s  = undefined
-evalA (Incr v) s  = undefined
-evalA (a :+: b) s = (u, x+y)
+evalA (Num n) s   = (s,n)
+evalA (Var v) s   = (s,get v s)
+evalA (Decr v) s = (set v x s, get v s)
+                where (t,x) = evalA (Var v :-: Num 1) s
+evalA (Incr v) s = (set v x s, get v s)
+                where (t,x) = evalA (Var v :+: Num 1) s
+evalA (a :+: b) s = (u,x+y)
                 where
                   (t,x) = evalA a s
                   (u,y) = evalA b t
-evalA (a :*: b) s = (u, x*y)
+evalA (a :*: b) s = (u,x*y)
                 where
                   (t,x) = evalA a s
                   (u,y) = evalA b t
-evalA (a :-: b) s = (u, x-y)
+evalA (a :-: b) s = (u,x-y)
                 where
                   (t,x) = evalA a s
                   (u,y) = evalA b t
