@@ -32,8 +32,18 @@ runFactorial i = get "y" s
   where
     s = evalC factorial (set "x" i empty)
 
+testFunction ::  Integer
+testFunction = get "x" s
+  where
+    s = evalC ("x" :=: PreDecr "x") (set "x" 5 empty)
 
 
+b1 :: Bexp
+b1 = (Var "x" :==: Var "y")
+b2 :: Bexp
+b2 = (Var "y" :==: Var "y")
+st :: State
+st = set "y" 4 (set "x" 4 empty)
 
 ------------------------- Arithmetic expressions
 
@@ -44,12 +54,18 @@ data Aexp = Num Integer
           | Aexp :*: Aexp
           | Decr Variable
           | Incr Variable
+          | PreDecr Variable
+          | PreIncr Variable
 
 evalA (Num n) s   = (s,n)
 evalA (Var v) s   = (s,get v s)
 evalA (Decr v) s = (set v x s, get v s)
                 where (t,x) = evalA (Var v :-: Num 1) s
 evalA (Incr v) s = (set v x s, get v s)
+                where (t,x) = evalA (Var v :+: Num 1) s
+evalA (PreDecr v) s = (t, get v (set v x t))
+                where (t,x) = evalA (Var v :-: Num 1) s
+evalA (PreIncr v) s = (t, get v (set v x t))
                 where (t,x) = evalA (Var v :+: Num 1) s
 evalA (a :+: b) s = (u,x+y)
                 where
@@ -73,6 +89,8 @@ data Bexp = Boolean Bool
           | Neg Bexp
           | Bexp :&: Bexp
           | Bexp :|: Bexp
+          | Bexp :&&: Bexp
+          | Bexp :||: Bexp
 
 evalB (Boolean b) s = (s, b)
 evalB (a :==: b)  s = (u,x==y)
@@ -93,6 +111,14 @@ evalB (a :|: b)   s = (u,x||y)
                 where
                   (t,x) = evalB a s
                   (u,y) = evalB b t
+evalB (a :&&: b)   s = (u,y)
+                where
+                  (t,x) = (evalB a s)
+                  (u,y) = if x then (evalB b t) else (t,x)
+evalB (a :||: b)   s = (u,y)
+                where
+                  (t,x) = (evalB a s)
+                  (u,y) = if x then (t,x) else (evalB b t)
 
 
 ------------------------- Commands
