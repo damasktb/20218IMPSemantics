@@ -74,12 +74,25 @@ data Bexp = Boolean Bool
           | Bexp :&: Bexp
           | Bexp :|: Bexp
 
-evalB (Boolean b) s = undefined
-evalB (a :==: b)  s = undefined
-evalB (a :<=: b)  s = undefined
-evalB (Neg b)     s = undefined
-evalB (a :&: b)   s = undefined
-evalB (a :|: b)   s = undefined
+evalB (Boolean b) s = (s, b)
+evalB (a :==: b)  s = (u,x==y)
+                where
+                  (t,x) = evalA a s
+                  (u,y) = evalA b t
+evalB (a :<=: b)  s = (u,x<=y)
+                where
+                  (t,x) = evalA a s
+                  (u,y) = evalA b t
+evalB (Neg b)     s = (s,not x)
+                where (t,x) = (evalB b s)
+evalB (a :&: b)   s = (u,x&&y)
+                where
+                  (t,x) = evalB a s
+                  (u,y) = evalB b t
+evalB (a :|: b)   s = (u,x||y)
+                where
+                  (t,x) = evalB a s
+                  (u,y) = evalB b t
 
 
 ------------------------- Commands
