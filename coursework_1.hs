@@ -43,12 +43,25 @@ data Aexp = Num Integer
           | Aexp :+: Aexp
           | Aexp :-: Aexp
           | Aexp :*: Aexp
+          | Decr Variable
+          | Incr Variable
 
-evalA (Num n) s   = undefined
-evalA (Var v) s   = undefined
-evalA (a :+: b) s = undefined
-evalA (a :*: b) s = undefined
-evalA (a :-: b) s = undefined
+evalA (Num n) s   = (s, n)
+evalA (Var v) s   = (s, s v)
+evalA (Decr v) s  = undefined
+evalA (Incr v) s  = undefined
+evalA (a :+: b) s = (u, x+y)
+                where
+                  (t,x) = evalA a s
+                  (u,y) = evalA b t
+evalA (a :*: b) s = (u, x*y)
+                where
+                  (t,x) = evalA a s
+                  (u,y) = evalA b t
+evalA (a :-: b) s = (u, x-y)
+                where
+                  (t,x) = evalA a s
+                  (u,y) = evalA b t
 
 
 ------------------------- Boolean expressions
