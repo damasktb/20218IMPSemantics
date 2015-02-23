@@ -21,7 +21,7 @@ get v ((w,m):xs) | v == w = m
 
 ------------------------- Sample program
 
-{-
+
 
 factorial :: Comm
 factorial = ("y" :=: Num 1) :>:
@@ -33,7 +33,7 @@ runFactorial i = get "y" s
   where
     s = evalC factorial (set "x" i empty)
 
--}
+
 
 
 ------------------------- Arithmetic expressions
