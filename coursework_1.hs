@@ -33,17 +33,17 @@ runFactorial i = get "y" s
     s = evalC factorial (set "x" i empty)
 
 testFunction ::  Integer
-testFunction = get "x" s
+testFunction = get "y" s
   where
-    s = evalC ("x" :=: PreDecr "x") (set "x" 5 empty)
+    s = evalC ("y" :=: Incr "x") (set "x" 5 empty)
 
 
 b1 :: Bexp
-b1 = (Var "x" :==: Var "y")
+b1 = (Var "x" :<=: Var "y")
 b2 :: Bexp
-b2 = (Var "y" :==: Var "y")
+b2 = (Var "z" :==: Var "q")
 st :: State
-st = set "y" 4 (set "x" 4 empty)
+st = set "y" 4 (set "x" 3 empty)
 
 ------------------------- Arithmetic expressions
 
@@ -63,9 +63,9 @@ evalA (Decr v) s = (set v x s, get v s)
                 where (t,x) = evalA (Var v :-: Num 1) s
 evalA (Incr v) s = (set v x s, get v s)
                 where (t,x) = evalA (Var v :+: Num 1) s
-evalA (PreDecr v) s = (t, get v (set v x t))
+evalA (PreDecr v) s = (t, get v (set v x s))
                 where (t,x) = evalA (Var v :-: Num 1) s
-evalA (PreIncr v) s = (t, get v (set v x t))
+evalA (PreIncr v) s = (t, get v (set v x s))
                 where (t,x) = evalA (Var v :+: Num 1) s
 evalA (a :+: b) s = (u,x+y)
                 where
