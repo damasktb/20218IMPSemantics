@@ -37,14 +37,6 @@ testFunction = get "y" s
   where
     s = evalC ("y" :=: Incr "x") (set "x" 5 empty)
 
-
-b1 :: Bexp
-b1 = (Var "x" :<=: Var "y")
-b2 :: Bexp
-b2 = (Var "z" :==: Var "q")
-st :: State
-st = set "y" 4 (set "x" 3 empty)
-
 ------------------------- Arithmetic expressions
 
 data Aexp = Num Integer
@@ -139,5 +131,24 @@ evalC (If b c d)  s | x         = evalC c t
 evalC (While b c) s | x         = evalC (While b c) (evalC c t) 
                     | otherwise = t
                     where (t,x) = evalB b s
+
+
+------------------------- Expressions for assignment 2 c)
+
+st :: State
+st = set "x" 3 empty
+b1 :: Bexp
+b1 = Boolean False
+b2 :: Bexp
+b2 = Decr "x" :==: Var "x"
+-- evalB (b1 :&: b2) st will return ([("x",2)],False)
+-- evalB (b1 :&&: b2) st will return ([("x",3)],False)
+-- The states differ since short circuiting b2 means the value of x is
+-- not decremented when using && and remains at 3
+
+b3 :: Bexp
+b3 = ((Decr "x" :<=: Num 3) :||: (Decr "x" :<=: Num 3)) :&&: (Var "x" :==: Num 1)
+b4 :: Bexp
+b4 = ((Decr "x" :<=: Num 3) :|: (Decr "x" :<=: Num 3)) :&: (Var "x" :==: Num 1)
 
 
