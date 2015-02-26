@@ -35,6 +35,8 @@ get v ((w,m):xs) | v == w = m
 --  where
 --    s = evalC factorial (set "x" i empty)
 
+runFactorial = evalA (Incr "x" :+: Incr "y") (set "y" 5 (set "x" 5 empty))
+
 
 ------------------------- Arithmetic expressions
 
@@ -54,10 +56,14 @@ evalA (Decr v) s = (set v x s, get v s)
                 where (t,x) = evalA (Var v :-: Num 1) s
 evalA (Incr v) s = (set v x s, get v s)
                 where (t,x) = evalA (Var v :+: Num 1) s
-evalA (PreDecr v) s = (t, get v (set v x s))
-                where (t,x) = evalA (Var v :-: Num 1) s
-evalA (PreIncr v) s = (t, get v (set v x s))
-                where (t,x) = evalA (Var v :+: Num 1) s
+evalA (PreDecr v) s = (u, get v u)
+                where 
+                  (t,x) = evalA (Var v :-: Num 1) s
+                  u = set v x t
+evalA (PreIncr v) s = (u, get v u)
+                where 
+                  (t,x) = evalA (Var v :+: Num 1) s
+                  u = set v x t
 evalA (a :+: b) s = (u,x+y)
                 where
                   (t,x) = evalA a s
