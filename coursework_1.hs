@@ -34,8 +34,6 @@ get v ((w,m):xs) | v == w = m
 --  where
 --    s = evalC factorial (set "x" i empty)
 
-testFunction ::  [Integer]
-testFunction = snd (evalC (Print (Var "x" :*: Var "y")) (set "y" 3 (set "x" 5 empty)))
 
 ------------------------- Arithmetic expressions
 
@@ -125,16 +123,16 @@ data Comm = Skip
 evalC :: Comm -> State -> (State, Output)
 evalC Skip         s = (s,[])
 evalC (v :=: a)   s = (set v x t,[]) where (t,x) = evalA a s
-evalC (c :>: d)   s = (u, x ++ y)
+evalC (c :>: d)   s = (u, x++y)
                     where 
                       (t,x) = evalC c s
                       (u,y) = evalC d t
---evalC (If b c d)  s | x         = evalC c t
---                    | otherwise = evalC d t
---                    where (t,x) = evalB b s
---evalC (While b c) s | x         = evalC (While b c) (evalC c t) 
---                    | otherwise = t
---                    where (t,x) = evalB b s
+evalC (If b c d)  s | x         = (evalC c t)
+                    | otherwise = (evalC d t)
+                    where (t,x) = evalB b s
+evalC (While b c) s | x         = evalC (While b c) (fst (evalC c t))
+                    | otherwise = (t,[])
+                    where (t,x) = evalB b s
 evalC (Print a)    s = (s, [x])
                     where (t,x) = evalA a s
 
@@ -150,8 +148,8 @@ b2 :: Bexp
 b2 = Decr "x" :==: Var "x"
 -- evalB (b1 :&: b2) st will return ([("x",2)],False)
 -- evalB (b1 :&&: b2) st will return ([("x",3)],False)
--- The states differ since short-circuiting b2 means the value of x is
--- not decremented when using && and remains at 3
+-- The states differ since short-circuiting b2 means the value of x is not
+-- decremented when using && and remains at 3
 
 b3 :: Bexp
 b3 = (Decr "x" :<=: Num 3) :||: (Decr "x" :<=: Num 3) :&&: (Var "x" :==: Num 1)
@@ -161,7 +159,6 @@ b4 = (Decr "x" :<=: Num 3) :|: (Decr "x" :<=: Num 3) :&: (Var "x" :==: Num 1)
 -- evalB evalB b4 st will return ([("x",1)],True)
 -- The return values differ since x is decremented twice in the :|: statement
 -- but short-circuiting only evaluates the first argument of the :||:
-
 
 -------------------------
 
