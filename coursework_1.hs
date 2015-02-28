@@ -35,9 +35,6 @@ get v ((w,m):xs) | v == w = m
 --  where
 --    s = evalC factorial (set "x" i empty)
 
-runFactorial = evalA (Incr "x" :+: Incr "y") (set "y" 5 (set "x" 5 empty))
-
-
 ------------------------- Arithmetic expressions
 
 data Aexp = Num Integer
@@ -50,6 +47,7 @@ data Aexp = Num Integer
           | PreDecr Variable
           | PreIncr Variable
 
+evalA :: Aexp -> State -> (State, Integer)
 evalA (Num n) s   = (s,n)
 evalA (Var v) s   = (s,get v s)
 evalA (Decr v) s = (set v x s, get v s)
@@ -89,6 +87,7 @@ data Bexp = Boolean Bool
           | Bexp :&&: Bexp
           | Bexp :||: Bexp
 
+evalB :: Bexp -> State -> (State, Bool)
 evalB (Boolean b) s = (s, b)
 evalB (a :==: b)  s = (u,x==y)
                 where
@@ -168,6 +167,3 @@ b4 = (Decr "x" :<=: Num 3) :|: (Decr "x" :<=: Num 3) :&: (Var "x" :==: Num 1)
 -- but short-circuiting only evaluates the first argument of the :||:
 
 -------------------------
-
-
-
