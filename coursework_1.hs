@@ -133,12 +133,14 @@ evalC (c :>: d)   s = (u, x++y)
                     where 
                       (t,x) = evalC c s
                       (u,y) = evalC d t
-evalC (If b c d)  s | x         = (evalC c t)
-                    | otherwise = (evalC d t)
+evalC (If b c d)  s | x         = evalC c t
+                    | otherwise = evalC d t
                     where (t,x) = evalB b s
-evalC (While b c) s | x         = evalC (While b c) (fst (evalC c t))
+evalC (While b c) s | x         = (v,y++z)
                     | otherwise = (t,[])
                     where (t,x) = evalB b s
+                          (u,y) = evalC c t
+                          (v,z) = evalC (While b c) u
 evalC (Print a)    s = (s, [x])
                     where (t,x) = evalA a s
 
