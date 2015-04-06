@@ -146,7 +146,6 @@ evalC (Print a)    s = (s, [x])
 
 
 
-------------------------- Expressions for assignment 2 c)
 
 st :: State
 st = set "x" 3 empty
